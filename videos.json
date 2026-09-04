@@ -1,7 +1,8 @@
 [
   {
-    "name": "video1.mp4",
-    "url": "https://archive.org/download/YOUR-ITEM-ID/video1.mp4",
-    "size": ""
+    "name": "1)LP1",
+    "url": "https://go.screenpal.com/player/cOQf1CnwtRA",
+    "type": "iframe",
+    "size": "00:44"
   }
 ]

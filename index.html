@@ -410,6 +410,7 @@
         </div>
         <div class="video-container">
             <video id="videoPlayer" controls></video>
+            <iframe id="iframePlayer" style="display:none;width:100%;height:100%;border:0;" allow="autoplay; fullscreen" allowfullscreen></iframe>
         </div>
     </div>
 
@@ -444,9 +445,12 @@
 
             empty.style.display = 'none';
             grid.innerHTML = videos.map(v => `
-                <div class="video-card" onclick="playVideo('${esc(v.url)}', '${esc(v.name)}')">
+                <div class="video-card" onclick="playVideo('${esc(v.url)}', '${esc(v.name)}', '${v.type || 'video'}')">
                     <div class="video-thumb">
-                        <video src="${esc(v.url)}" preload="metadata" muted loop></video>
+                        ${v.type === 'iframe'
+                            ? `<iframe src="${esc(v.url)}" style="width:100%;height:100%;border:0;"></iframe>`
+                            : `<video src="${esc(v.url)}" preload="metadata" muted loop></video>`
+                        }
                         <div class="play-overlay"></div>
                     </div>
                     <div class="video-info">
@@ -459,8 +463,10 @@
             // Hover preview
             grid.querySelectorAll('.video-card').forEach(card => {
                 const vid = card.querySelector('video');
-                card.addEventListener('mouseenter', () => { vid.play().catch(()=>{}); });
-                card.addEventListener('mouseleave', () => { vid.pause(); vid.currentTime = 0; });
+                if (vid) {
+                    card.addEventListener('mouseenter', () => { vid.play().catch(()=>{}); });
+                    card.addEventListener('mouseleave', () => { vid.pause(); vid.currentTime = 0; });
+                }
             });
         }
 
@@ -470,21 +476,32 @@
             return d.innerHTML;
         }
 
-        function playVideo(url, name) {
+        function playVideo(url, name, type) {
             currentVideoUrl = url;
             currentVideoName = name;
             document.getElementById('playerTitle').textContent = name;
             const player = document.getElementById('videoPlayer');
-            player.src = url;
+            const iframe = document.getElementById('iframePlayer');
+            if (type === 'iframe') {
+                player.style.display = 'none';
+                iframe.style.display = 'block';
+                iframe.src = url + '?ff=true&controls=1&sec=0';
+            } else {
+                iframe.style.display = 'none';
+                player.style.display = 'block';
+                player.src = url;
+                player.play().catch(()=>{});
+            }
             document.getElementById('playerModal').classList.add('active');
             document.body.style.overflow = 'hidden';
-            player.play().catch(()=>{});
         }
 
         function closePlayer() {
             const player = document.getElementById('videoPlayer');
+            const iframe = document.getElementById('iframePlayer');
             player.pause();
             player.src = '';
+            iframe.src = '';
             document.getElementById('playerModal').classList.remove('active');
             document.body.style.overflow = '';
         }
