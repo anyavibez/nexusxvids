@@ -1,0 +1,16 @@
+# NexusX Vids - deploy instructions
+# Run these commands in PowerShell in the nexusxvids folder
+
+# 1. Configure git with YOUR GitHub info (replace with yours)
+git config --global user.name "anyavibez"
+git config --global user.email "your-email@example.com"
+
+# 2. Stage and commit your files
+git add index.html videos.json
+git commit -m "NexusX Vids player"
+
+# 3. Add your remote repo
+git remote add origin https://github.com/anyavibez/nexusxvids.git
+
+# 4. Push to GitHub
+git push -u origin main
