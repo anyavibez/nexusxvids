@@ -254,20 +254,6 @@
     else a.sort(function(x,y){ return (x.n||0)-(y.n||0); }); // asc / default
     return a;
   }
-  function pagesTotal(len, per){ return Math.max(1, Math.ceil(len/per)); }
-  function pageWindow(cur, total){
-    if(total<=5) return Array.from({length:total}, function(_,i){ return i+1; });
-    var s=[];
-    for(var i=1;i<=total;i++){
-      if(i===1||i===total||Math.abs(i-cur)<=1) s.push(i);
-    }
-    var out=[];
-    for(var k=0;k<s.length;k++){
-      if(k>0 && s[k]-s[k-1]>1){ if(s[k]-s[k-1]===2) out.push(s[k]-1); else out.push('…'); }
-      out.push(s[k]);
-    }
-    return out;
-  }
 
   window.NEXUS={
     esc:esc, showToast:showToast, copyToClipboard:copyToClipboard,
@@ -398,18 +384,21 @@
       copyToClipboard(code,'Embed code copied!');
     },
 
-    /* ---------- category page controller (sort + pagination) ---------- */
+    /* ---------- category page controller (sort + infinite scroll) ---------- */
     PER_PAGE:5,
     setupCategory:function(){
       var cat=document.body.dataset.page||'';
       var allForCat=[];
       var filtered=[];
-      var page=1;
+      var loaded=0;          // how many rendered
       var mode='asc';
       var favOnly=false;
+      var busy=false;
       var grid=document.getElementById('videoGrid');
       var toolbar=document.getElementById('catToolbar');
-      var pagerBox=document.getElementById('pager');
+      var sentinelBox=document.getElementById('pager');
+      var sentinel=null;
+      var io=null;
 
       if(toolbar){
         toolbar.innerHTML='<div class="sort-pills">'+
@@ -426,49 +415,79 @@
             b.classList.add('active');
             if(b.dataset.kind==='fav') favOnly=!favOnly;
             else mode=b.dataset.mode;
-            page=1; render();
+            resetLoad();
           });
         });
       }
 
-      function apply(){
+      function ensureSentinel(){
+        sentinelBox=document.getElementById('pager');
+        if(!sentinelBox) return;
+        if(io) io.disconnect();
+        if(sentinel) sentinel.remove();
+        sentinelBox.innerHTML='';
+        sentinel=document.createElement('div');
+        sentinel.className='load-sentinel';
+        sentinel.innerHTML='<span class="loader"></span><span class="load-msg" id="loadMsg">Scrolling for more…</span>';
+        sentinelBox.appendChild(sentinel);
+      }
+      function watchScroll(){
+        if(io) io.disconnect();
+        if(!('IntersectionObserver' in window)) return;
+        io=new IntersectionObserver(function(ents){
+          ents.forEach(function(en){ if(en.isIntersecting) loadMore(); });
+        },{rootMargin:'220px 0px'});
+        if(sentinel) io.observe(sentinel);
+      }
+
+      function renderEmpty(msg){
+        if(io) io.disconnect();
+        grid.innerHTML='<div class="empty-state reveal visible"><div class="big">♡</div>'+msg+'</div>';
+        if(sentinelBox) sentinelBox.innerHTML='';
+      }
+
+      function resetLoad(){
+        loaded=0;
+        if(grid) grid.innerHTML='';
+        render();
+      }
+
+      function loadMore(){
+        if(busy) return;
+        busy=true;
+        if(sentinel) sentinel.classList.add('loading');
+        setTimeout(function(){ // let spinner paint
+          renderAppend();
+          busy=false;
+          if(sentinel) sentinel.classList.remove('loading');
+        }, 120);
+      }
+
+      function render(){
+        sortListState();
+        window.NEXUS.currentList=filtered;
+        window.NEXUS._setList(filtered);
+        if(!filtered.length){ renderEmpty(favOnly?'No favorites yet — tap ♥ on any card.':'No items — add them to videos.json'); return; }
+        loaded=0;
+        renderAppend();
+      }
+      function renderAppend(){
+        var start=loaded;
+        var slice=filtered.slice(start, start+window.NEXUS.PER_PAGE);
+        if(!slice.length){ doneLoading(); return; }
+        grid.insertAdjacentHTML('beforeend', slice.map(function(v){ return window.NEXUS.cardHTML(v); }).join(''));
+        loaded=start+slice.length;
+        window.NEXUS.wireCards();
+        if(loaded>=filtered.length){ doneLoading(); }
+        else { ensureSentinel(); watchScroll(); }
+      }
+      function doneLoading(){
+        if(io) io.disconnect();
+        if(sentinelBox) sentinelBox.innerHTML='<div class="load-done">✨ You\'ve seen all '+filtered.length+' — that\'s the whole collection! ✨</div>';
+      }
+      function sortListState(){
         var full=sortList(allForCat, mode);
         filtered=full.filter(function(v){ return !favOnly || isFav(v); });
-        page=Math.min(page, pagesTotal(filtered.length, window.NEXUS.PER_PAGE));
-        window.NEXUS.currentList=full;
-      }
-      function render(){
-        apply();
-        window.NEXUS._setList(filtered);
-        var start=(page-1)*window.NEXUS.PER_PAGE;
-        var slice=filtered.slice(start, start+window.NEXUS.PER_PAGE);
-        if(!slice.length){
-          grid.innerHTML='<div class="empty-state reveal visible"><div class="big">♡</div>'+((favOnly?'No favorites yet — tap ♥ on any card.':'No items — add them to videos.json'))+'</div>';
-        } else {
-          grid.innerHTML=slice.map(function(v){ return window.NEXUS.cardHTML(v); }).join('');
-          window.NEXUS.wireCards();
-        }
-        renderPager(filtered.length);
-      }
-      function renderPager(total){
-        if(!pagerBox) return;
-        var totalPages=pagesTotal(total, window.NEXUS.PER_PAGE);
-        if(totalPages<=1){ pagerBox.innerHTML=''; return; }
-        var win=pageWindow(page, totalPages);
-        var html='<button class="pg" data-pg="'+(page-1)+'"'+(page<=1?' disabled':'')+'>‹</button>';
-        win.forEach(function(p){
-          if(p==='…'){ html+='<span class="pg-dots">…</span>'; }
-          else { html+='<button class="pg'+(p===page?' active':'')+'" data-pg="'+p+'">'+p+'</button>'; }
-        });
-        html+='<button class="pg" data-pg="'+(page+1)+'"'+(page>=totalPages?' disabled':'')+'>›</button>';
-        pagerBox.innerHTML=html;
-        pagerBox.querySelectorAll('button.pg').forEach(function(b){
-          b.addEventListener('click',function(){
-            if(b.disabled) return;
-            var target=parseInt(b.dataset.pg,10);
-            if(target>=1 && target<=totalPages){ page=target; render(); }
-          });
-        });
       }
 
       function load(){
@@ -484,14 +503,12 @@
         filtered=full.filter(function(v){ return !favOnly || isFav(v); });
         window.NEXUS.currentList=full;
         window.NEXUS._setList(filtered);
-        page=1;
-        var start=0, slice=filtered.slice(0, window.NEXUS.PER_PAGE);
-        if(!slice.length){ grid.innerHTML='<div class="empty-state">No match for “'+esc(q)+'”.</div>'; if(pagerBox) pagerBox.innerHTML=''; return; }
-        grid.innerHTML=slice.map(function(v){ return window.NEXUS.cardHTML(v); }).join('');
-        window.NEXUS.wireCards();
-        renderPager(filtered.length);
+        if(!filtered.length){ renderEmpty('No match for “'+esc(q)+'”.'); return; }
+        loaded=0;
+        grid.innerHTML='';
+        renderAppend();
       };
-      window.NEXUS_onFavChange=function(){ page=1; render(); };
+      window.NEXUS_onFavChange=function(){ resetLoad(); };
       load();
     }
   };
