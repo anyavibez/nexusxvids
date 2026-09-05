@@ -80,8 +80,6 @@
       </div>
       <button class="spot-nav spot-next" id="spotNext" title="Next" aria-label="Next">›</button>
     </div>
-
-    <div class="featured-grid reveal" id="featuredGrid"></div>
   </section>
 </div>
 
@@ -147,13 +145,10 @@
     }
     function stopAuto(){ clearInterval(timer); }
     function buildFeatured(all){
-      fam=shuffle(all.slice()).slice(0,8);
+      fam=shuffle(all.slice()).slice(0,6);
       fIdx=0;
       renderSpot();
       runAuto();
-      var grid=document.getElementById('featuredGrid');
-      if(grid) grid.innerHTML=fam.map(function(v){ return '<div class="featured-grid-item">'+window.NEXUS.cardHTML(v)+'</div>'; }).join('');
-      window.NEXUS.wireCards();
       var prev=document.getElementById('spotPrev'), next=document.getElementById('spotNext');
       if(prev) prev.onclick=function(){ stopAuto(); go(-1); runAuto(); };
       if(next) next.onclick=function(){ stopAuto(); go(1); runAuto(); };

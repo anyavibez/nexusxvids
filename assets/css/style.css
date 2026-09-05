@@ -274,57 +274,53 @@ nav.scrolled{background:rgba(10,10,20,0.82);box-shadow:0 10px 40px rgba(0,0,0,.3
 
 /* ============ FEATURED SPOTLIGHT ============ */
 .featured-section{position:relative}
-.featured-glow{position:absolute;top:-40px;left:50%;transform:translateX(-50%);width:90%;height:320px;background:radial-gradient(60% 70% at 50% 40%,var(--glow),transparent 72%);opacity:.5;pointer-events:none;z-index:0}
-.featured-head{position:relative;z-index:1;display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:26px}
+.featured-glow{position:absolute;top:-30px;left:50%;transform:translateX(-50%);width:80%;height:180px;background:radial-gradient(60% 70% at 50% 40%,var(--glow),transparent 72%);opacity:.4;pointer-events:none;z-index:0}
+.featured-head{position:relative;z-index:1;display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:18px}
 .featured-head .section-title{text-align:left}
 .featured-head .section-sub{text-align:left;margin:0;max-width:520px}
 .shuffle-btn{flex-shrink:0}
 
-.featured-spotlight{position:relative;z-index:1;display:grid;grid-template-columns:52px 1fr 52px;gap:14px;align-items:stretch;margin-bottom:26px}
+.featured-spotlight{position:relative;z-index:1;display:grid;grid-template-columns:44px 1fr 44px;gap:12px;align-items:stretch;max-width:920px;margin:0 auto 20px}
 .spot-nav{
-  align-self:center;width:52px;height:52px;border-radius:16px;border:1px solid var(--card-border);background:rgba(255,255,255,.05);
-  color:var(--text);font-size:22px;cursor:pointer;backdrop-filter:blur(10px);transition:.25s;display:grid;place-items:center;
+  align-self:center;width:44px;height:44px;border-radius:14px;border:1px solid var(--card-border);background:rgba(255,255,255,.05);
+  color:var(--text);font-size:19px;cursor:pointer;backdrop-filter:blur(10px);transition:.25s;display:grid;place-items:center;
 }
 .spot-nav:hover{border-color:var(--primary);background:var(--grad);color:#fff;box-shadow:0 0 20px var(--glow);transform:scale(1.06)}
-.spot-stage{border-radius:24px;overflow:hidden}
+.spot-stage{border-radius:20px;overflow:hidden}
 .spot-card{
-  position:relative;display:grid;grid-template-columns:0.9fr 1.1fr;border:1px solid var(--card-border);border-radius:24px;overflow:hidden;
-  background:linear-gradient(135deg,rgba(255,255,255,.07),rgba(255,255,255,.02));backdrop-filter:blur(14px);min-height:340px;
+  position:relative;display:grid;grid-template-columns:0.85fr 1.15fr;border:1px solid var(--card-border);border-radius:20px;overflow:hidden;
+  background:linear-gradient(135deg,rgba(255,255,255,.07),rgba(255,255,255,.02));min-height:240px;
 }
 .spot-visual{position:relative;overflow:hidden}
 .spot-visual video{width:100%;height:100%;object-fit:cover;display:block}
 .spot-visual::after{content:'';position:absolute;inset:0;background:linear-gradient(270deg,transparent,rgba(0,0,0,.25));pointer-events:none}
-.spot-body{position:relative;padding:34px 34px 28px;display:flex;flex-direction:column;justify-content:center}
+.spot-body{position:relative;padding:22px 24px 18px;display:flex;flex-direction:column;justify-content:center}
 .spot-kicker{
-  display:inline-flex;align-items:center;gap:6px;align-self:flex-start;padding:6px 12px;border-radius:20px;margin-bottom:14px;
-  background:var(--grad);font-family:var(--font-accent);font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#fff;box-shadow:0 6px 18px var(--glow);
+  display:inline-flex;align-items:center;gap:6px;align-self:flex-start;padding:5px 11px;border-radius:20px;margin-bottom:10px;
+  background:var(--grad);font-family:var(--font-accent);font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#fff;box-shadow:0 6px 18px var(--glow);
 }
-.spot-name{font-family:var(--font-display);font-size:clamp(26px,3.2vw,40px);font-weight:800;letter-spacing:-1px;line-height:1.05;margin-bottom:8px}
-.spot-cat{font-family:var(--font-accent);font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--primary);font-weight:700;margin-bottom:14px}
-.spot-desc{color:var(--text-dim);font-size:14.5px;line-height:1.6;margin-bottom:22px;font-weight:500}
-.spot-actions{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:24px}
-.spot-thumbs{display:flex;gap:8px;flex-wrap:wrap}
-.spot-thumb{width:52px;height:52px;border-radius:12px;overflow:hidden;cursor:pointer;border:2px solid transparent;transition:.25s;opacity:.6;position:relative}
+.spot-name{font-family:var(--font-display);font-size:clamp(20px,2.4vw,28px);font-weight:800;letter-spacing:-.8px;line-height:1.05;margin-bottom:6px}
+.spot-cat{font-family:var(--font-accent);font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--primary);font-weight:700;margin-bottom:10px}
+.spot-desc{color:var(--text-dim);font-size:13px;line-height:1.55;margin-bottom:14px;font-weight:500}
+.spot-actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.spot-actions .btn{padding:9px 16px;font-size:12.5px}
+.spot-thumbs{display:flex;gap:7px;flex-wrap:wrap}
+.spot-thumb{width:40px;height:40px;border-radius:10px;overflow:hidden;cursor:pointer;border:2px solid transparent;transition:.25s;opacity:.6;position:relative}
 .spot-thumb img{width:100%;height:100%;object-fit:cover}
 .spot-thumb:hover{opacity:1;transform:translateY(-2px)}
 .spot-thumb.active{border-color:var(--primary);opacity:1;box-shadow:0 0 14px var(--glow)}
 
-.featured-grid{position:relative;z-index:1;display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
-.featured-grid-item{border-radius:18px}
-
 @media (max-width:900px){
-  .featured-spotlight{grid-template-columns:42px 1fr 42px;gap:10px}
+  .featured-spotlight{grid-template-columns:40px 1fr 40px;gap:10px}
   .spot-card{grid-template-columns:1fr;min-height:0}
   .spot-visual{aspect-ratio:16/10}
-  .spot-body{padding:24px}
-  .featured-grid{grid-template-columns:repeat(2,1fr)}
+  .spot-body{padding:18px 20px 16px}
   .featured-head{flex-direction:column;align-items:flex-start}
 }
 @media (max-width:560px){
   .featured-spotlight{grid-template-columns:1fr}
   .spot-nav{display:none}
   .spot-thumbs{display:none}
-  .featured-grid{grid-template-columns:1fr}
 }
 
 /* ============ CATEGORY CARDS — BENTO 4 ============ */
