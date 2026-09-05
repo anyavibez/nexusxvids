@@ -26,8 +26,8 @@
       <h1 class="hero-title">Elevate Your Space<br>with <span class="grad">NexusX</span> Vids</h1>
       <p class="hero-sub">Four curated worlds — <strong>elite furniture</strong>, <strong>streetwear drops</strong>, <strong>dream spaces</strong> & <strong>editorial poses</strong> — in one shining, animated showcase.</p>
       <div class="hero-cta">
-        <a class="btn btn-primary" href="#featured">🎬 Watch Featured →</a>
-        <a class="btn btn-ghost" href="rooms.html">Browse Rooms</a>
+        <a class="btn btn-primary" href="#categories">Explore Collections →</a>
+        <a class="btn btn-ghost" href="#featured">🎬 Watch Featured</a>
       </div>
     </div>
     <div class="hero-scroll"><span>Scroll</span></div>
@@ -40,25 +40,48 @@
     <div class="stat"><div class="stat-num">1 CLICK</div><div class="stat-label">Instant Play</div></div>
   </div>
 
-  <!-- FEATURED -->
-  <section id="featured" class="section">
-    <div class="featured-head">
-      <div>
-        <h2 class="section-title reveal" style="margin-bottom:6px;">Featured <span>Reels</span></h2>
-        <p class="section-sub reveal">Fresh picks, shuffled for you — hover to preview, tap to play with sound.</p>
-      </div>
-      <button class="btn btn-ghost shuffle-btn reveal" id="shuffleBtn">🎲 Shuffle</button>
-    </div>
-    <div class="featured-marquee reveal">
-      <div class="featured-track" id="featuredTrack"></div>
-    </div>
-  </section>
-
   <!-- CATEGORIES -->
   <section id="categories" class="section">
     <h2 class="section-title reveal">Explore <span>Collections</span></h2>
-    <p class="section-sub reveal">Each category lives on its own page — sort, filter & flip through reels. Tap to enter.</p>
+    <p class="section-sub reveal">Four curated worlds — each on its own page, sorted, filtered & paginated. Tap to enter.</p>
     <div class="home-cat-grid" id="homeCats"></div>
+  </section>
+
+  <!-- FEATURED SPOTLIGHT -->
+  <section id="featured" class="section featured-section">
+    <div class="featured-glow"></div>
+    <div class="featured-head">
+      <div>
+        <h2 class="section-title reveal" style="margin:0 0 6px;">Featured <span>Spotlight</span></h2>
+        <p class="section-sub reveal" style="margin:0;">Fresh picks auto-rotating — hover any reel, tap the spotlight to play. Shuffle whenever.</p>
+      </div>
+      <button class="btn btn-ghost shuffle-btn reveal" id="shuffleBtn">🎲 Shuffle</button>
+    </div>
+
+    <div class="featured-spotlight reveal" id="featuredSpot">
+      <button class="spot-nav spot-prev" id="spotPrev" title="Previous" aria-label="Previous">‹</button>
+      <div class="spot-stage" id="spotStage">
+        <div class="spot-card" id="spotCard">
+          <div class="spot-visual">
+            <video id="spotVideo" autoplay muted loop playsinline preload="metadata"></video>
+          </div>
+          <div class="spot-body">
+            <div class="spot-kicker">⭐ Featured Pick</div>
+            <div class="spot-name" id="spotName"></div>
+            <div class="spot-cat" id="spotCat"></div>
+            <p class="spot-desc">Curated by NexusX — every reel is hand-picked for shine.</p>
+            <div class="spot-actions">
+              <a class="btn btn-primary" id="spotPlay">▶  Play Now</a>
+              <button class="btn btn-ghost" id="spotFav">♡ Favorite</button>
+            </div>
+            <div class="spot-thumbs" id="spotThumbs"></div>
+          </div>
+        </div>
+      </div>
+      <button class="spot-nav spot-next" id="spotNext" title="Next" aria-label="Next">›</button>
+    </div>
+
+    <div class="featured-grid reveal" id="featuredGrid"></div>
   </section>
 </div>
 
@@ -66,6 +89,7 @@
 <script>
   function buildHome(){
     var cats=window.NEXUS_CATS;
+    function labelOf(v){ var c=window.NEXUS_CATS.find(function(c){ return c.key.toLowerCase()===(v.category||'').toLowerCase(); }); return c?c.label:v.category||'General'; }
     function renderCats(all){
       var counts={};
       all.forEach(function(v){ var k=(v.category||'').toLowerCase(); counts[k]=(counts[k]||0)+1; });
@@ -74,26 +98,78 @@
         var n=counts[c.key.toLowerCase()]||0;
         return '<a class="cat-card" href="'+c.url+'">'+
           '<img class="cat-card-cover" src="'+c.cover+'" alt="'+c.label+'" loading="lazy">'+
-          '<span class="cat-card-count">'+n+' items</span>'+
+          '<span class="cat-card-count">'+n+' reels</span>'+
           '<span class="cat-card-go">→</span>'+
           '<div class="cat-card-body"><div class="cat-card-label">'+c.key+'</div><div class="cat-card-name">'+c.label+'</div><div class="cat-card-desc">'+c.desc+'</div></div></a>';
       }).join('');
     }
-    function renderFeatured(all){
-      var track=document.getElementById('featuredTrack');
-      if(!track) return;
-      var pool=all.slice();
-      for(var i=pool.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=pool[i]; pool[i]=pool[j]; pool[j]=t; }
-      var picks=pool.slice(0,8);
-      var html=picks.map(function(v){ return '<div class="featured-item">'+window.NEXUS.cardHTML(v)+'</div>'; }).join('');
-      track.innerHTML=html+html;
+
+    /* ---- Featured spotlight controller ---- */
+    var fam=[], fIdx=0, timer=null;
+    function shuffle(arr){ for(var i=arr.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=arr[i]; arr[i]=arr[j]; arr[j]=t; } return arr; }
+    function renderSpot(){
+      var v=fam[fIdx];
+      if(!v) return;
+      var sp=document.getElementById('spotVideo');
+      if(sp){ sp.poster=v.thumb||''; sp.src=v.file||''; }
+      var nm=document.getElementById('spotName'); if(nm) nm.textContent=v.name;
+      var ct=document.getElementById('spotCat'); if(ct) ct.textContent=labelOf(v);
+      var play=document.getElementById('spotPlay');
+      if(play) play.href='#'; 
+      var step=function(){ window.NEXUS.play({url:v.url,name:v.name,file:v.file||'',thumb:v.thumb||'',type:v.type||'video'}); };
+      if(play) play.onclick=function(e){ e.preventDefault(); step(); };
+      var fav=document.getElementById('spotFav');
+      if(fav){
+        var on=window.NEXUS.isFav(v);
+        fav.textContent=on?'♥ Favorited':'♡ Favorite';
+        fav.onclick=function(){
+          window.NEXUS.toggleFav(v);
+          var now=window.NEXUS.isFav(v);
+          this.textContent=now?'♥ Favorited':'♡ Favorite';
+          window.NEXUS.showToast(now?'Added to favorites':'Removed from favorites');
+        };
+      }
+      var thumbs=document.getElementById('spotThumbs');
+      if(thumbs){
+        thumbs.innerHTML='';
+        fam.forEach(function(x,i){
+          var d=document.createElement('div'); d.className='spot-thumb'+(i===fIdx?' active':'');
+          var img=document.createElement('img'); img.src=x.thumb||''; img.alt=x.name; d.appendChild(img);
+          d.addEventListener('click',function(){ fIdx=i; clearInterval(timer); renderSpot(); runAuto(); });
+          thumbs.appendChild(d);
+        });
+      }
     }
+    function go(d){ fIdx=(fIdx+d+fam.length)%fam.length; renderSpot(); }
+    function runAuto(){
+      clearInterval(timer);
+      timer=setInterval(function(){ go(1); }, 5000);
+    }
+    function stopAuto(){ clearInterval(timer); }
+    function buildFeatured(all){
+      fam=shuffle(all.slice()).slice(0,8);
+      fIdx=0;
+      renderSpot();
+      runAuto();
+      var grid=document.getElementById('featuredGrid');
+      if(grid) grid.innerHTML=fam.map(function(v){ return '<div class="featured-grid-item">'+window.NEXUS.cardHTML(v)+'</div>'; }).join('');
+      window.NEXUS.wireCards();
+      var prev=document.getElementById('spotPrev'), next=document.getElementById('spotNext');
+      if(prev) prev.onclick=function(){ stopAuto(); go(-1); runAuto(); };
+      if(next) next.onclick=function(){ stopAuto(); go(1); runAuto(); };
+      var stage=document.getElementById('spotStage');
+      if(stage){
+        stage.addEventListener('mouseenter',stopAuto);
+        stage.addEventListener('mouseleave',runAuto);
+      }
+    }
+
     fetch('videos.json').then(function(r){ return r.json(); }).then(function(all){
       document.getElementById('statTotal').textContent=all.length;
-      renderCats(all);
-      renderFeatured(all);
-      document.querySelectorAll('#featured .reveal').forEach(function(el){ el.classList.add('visible'); });
       document.querySelectorAll('#categories .reveal').forEach(function(el){ el.classList.add('visible'); });
+      document.querySelectorAll('#featured .reveal').forEach(function(el){ el.classList.add('visible'); });
+      renderCats(all);
+      buildFeatured(all);
       setTimeout(window.NEXUS.setupTilt, 300);
     }).catch(function(){
       var grid=document.getElementById('homeCats');
@@ -107,7 +183,8 @@
     });
     var sb=document.getElementById('shuffleBtn');
     if(sb) sb.addEventListener('click',function(){
-      fetch('videos.json').then(function(r){ return r.json(); }).then(function(all){ renderFeatured(all); });
+      stopAuto();
+      fetch('videos.json').then(function(r){ return r.json(); }).then(function(all){ buildFeatured(all); });
     });
   }
   document.addEventListener('DOMContentLoaded', buildHome);
