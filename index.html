@@ -1,550 +1,129 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NexusX Vids</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html, body {
-            height: 100%;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #0a0a0a;
-            color: #fff;
-            min-height: 100%;
-            overflow-x: hidden;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 16px;
-        }
-
-        /* HEADER */
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 0;
-            border-bottom: 1px solid #222;
-            margin-bottom: 24px;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-shrink: 0;
-        }
-
-        .logo-icon {
-            width: 36px;
-            height: 36px;
-            background: linear-gradient(135deg, #6366f1, #8b5cf6);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 900;
-            font-size: 16px;
-            color: #fff;
-        }
-
-        h1 {
-            font-size: 22px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
-
-        h1 span {
-            color: #8b5cf6;
-        }
-
-        .search-box {
-            display: flex;
-            gap: 10px;
-            flex: 1;
-            max-width: 400px;
-            min-width: 200px;
-        }
-
-        .search-box input {
-            background: #1a1a1a;
-            border: 1px solid #333;
-            color: #fff;
-            padding: 10px 16px;
-            border-radius: 8px;
-            font-size: 14px;
-            width: 100%;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        .search-box input:focus {
-            border-color: #6366f1;
-        }
-
-        .search-box input::placeholder {
-            color: #666;
-        }
-
-        /* VIDEO GRID */
-        .video-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 16px;
-            width: 100%;
-        }
-
-        .video-card {
-            background: #141414;
-            border-radius: 12px;
-            overflow: hidden;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            border: 1px solid #1f1f1f;
-        }
-
-        .video-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 30px rgba(99, 102, 241, 0.15);
-            border-color: #333;
-        }
-
-        .video-thumb {
-            width: 100%;
-            aspect-ratio: 16/9;
-            background: #1a1a1a;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .video-thumb video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .play-overlay {
-            position: absolute;
-            width: 52px;
-            height: 52px;
-            background: rgba(99, 102, 241, 0.85);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.2s;
-            opacity: 0;
-        }
-
-        .video-card:hover .play-overlay {
-            opacity: 1;
-            transform: scale(1.1);
-        }
-
-        .play-overlay::after {
-            content: '';
-            width: 0;
-            height: 0;
-            border-style: solid;
-            border-width: 8px 0 8px 14px;
-            border-color: transparent transparent transparent #fff;
-            margin-left: 3px;
-        }
-
-        .video-info {
-            padding: 12px 14px;
-        }
-
-        .video-name {
-            font-size: 13px;
-            font-weight: 500;
-            margin-bottom: 4px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .video-meta {
-            font-size: 11px;
-            color: #666;
-        }
-
-        /* PLAYER MODAL */
-        .player-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: #000;
-            z-index: 1000;
-            flex-direction: column;
-        }
-
-        .player-modal.active {
-            display: flex;
-        }
-
-        .player-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 16px;
-            background: #111;
-            gap: 10px;
-            flex-wrap: wrap;
-            flex-shrink: 0;
-        }
-
-        .player-title {
-            font-size: 14px;
-            font-weight: 500;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            flex: 1;
-            min-width: 0;
-        }
-
-        .player-actions {
-            display: flex;
-            gap: 8px;
-            flex-shrink: 0;
-            flex-wrap: wrap;
-        }
-
-        .player-actions button {
-            background: #222;
-            color: #ccc;
-            border: 1px solid #333;
-            padding: 7px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-            transition: all 0.2s;
-        }
-
-        .player-actions button:hover {
-            background: #333;
-            color: #fff;
-        }
-
-        .player-actions button.copied {
-            background: #22c55e;
-            color: #fff;
-            border-color: #22c55e;
-        }
-
-        .player-close {
-            background: #dc2626 !important;
-            border-color: #dc2626 !important;
-            color: #fff !important;
-        }
-
-        .player-close:hover {
-            background: #b91c1c !important;
-        }
-
-        .video-container {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #000;
-            padding: 8px;
-            min-height: 0;
-            overflow: hidden;
-        }
-
-        video {
-            max-width: 100%;
-            max-height: 100%;
-            width: auto;
-            height: auto;
-        }
-
-        /* EMPTY STATE */
-        .empty-state {
-            text-align: center;
-            padding: 80px 20px;
-            color: #555;
-        }
-
-        .empty-state h2 {
-            font-size: 18px;
-            margin-bottom: 8px;
-            color: #777;
-        }
-
-        .empty-state p {
-            font-size: 13px;
-            color: #555;
-        }
-
-        /* TOAST */
-        .toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: #8b5cf6;
-            color: #fff;
-            padding: 10px 22px;
-            border-radius: 8px;
-            font-size: 13px;
-            z-index: 2000;
-            transition: transform 0.3s ease;
-            pointer-events: none;
-        }
-
-        .toast.show {
-            transform: translateX(-50%) translateY(0);
-        }
-
-        /* FOOTER */
-        footer {
-            text-align: center;
-            padding: 30px 0;
-            color: #333;
-            font-size: 12px;
-        }
-
-        /* RESPONSIVE */
-        @media (max-width: 768px) {
-            .container {
-                padding: 12px;
-            }
-
-            header {
-                padding: 12px 0;
-                margin-bottom: 16px;
-            }
-
-            .search-box {
-                width: 100%;
-                max-width: none;
-            }
-
-            .video-grid {
-                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-                gap: 10px;
-            }
-
-            h1 {
-                font-size: 18px;
-            }
-
-            .player-actions {
-                width: 100%;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .video-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 8px;
-            }
-
-            .video-name {
-                font-size: 11px;
-            }
-
-            .video-meta {
-                font-size: 10px;
-            }
-
-            .video-info {
-                padding: 8px 10px;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NexusX Vids — Premium Showcase</title>
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="stylesheet" href="assets/css/style.css">
 </head>
-<body>
-    <div class="container">
-        <header>
-            <div class="logo">
-                <div class="logo-icon">NX</div>
-                <h1>Nexus<span>X</span> Vids</h1>
-            </div>
-            <div class="search-box">
-                <input type="text" id="search" placeholder="Search videos...">
-            </div>
-        </header>
+<body data-page="home">
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
 
-        <div class="video-grid" id="videoGrid"></div>
-        <div class="empty-state" id="emptyState" style="display:none;">
-            <h2>No videos yet</h2>
-            <p>Add your videos to videos.json</p>
-        </div>
+<div class="wrap">
+  <nav></nav>
 
-        <footer>NexusX Vids &mdash; personal video host</footer>
+  <!-- HERO -->
+  <section class="hero">
+    <video class="hero-bg" autoplay muted loop playsinline preload="auto">
+      <source src="assets/media/hero.mp4" type="video/mp4">
+    </video>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <div class="hero-badge">✨ Premium Showcase Catalog</div>
+      <h1 class="hero-title">Elevate Your Space<br>with <span class="grad">NexusX</span> Vids</h1>
+      <p class="hero-sub">Four curated worlds — <strong>elite furniture</strong>, <strong>streetwear drops</strong>, <strong>dream spaces</strong> & <strong>editorial poses</strong> — in one shining, animated showcase.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="#categories">Explore Catalog →</a>
+        <a class="btn btn-ghost" href="rooms.html">Browse Rooms</a>
+      </div>
     </div>
+    <div class="hero-scroll"><span>Scroll</span></div>
+  </section>
 
-    <!-- Player Modal -->
-    <div class="player-modal" id="playerModal">
-        <div class="player-header">
-            <span class="player-title" id="playerTitle">Video</span>
-            <div class="player-actions">
-                <button onclick="copyDirectLink()">Copy Link</button>
-                <button onclick="copyEmbedCode()">Embed</button>
-                <button onclick="copyIframe()">Iframe</button>
-                <button class="player-close" onclick="closePlayer()">Close</button>
-            </div>
+  <!-- STATS -->
+  <div class="stats-bar reveal">
+    <div class="stat"><div class="stat-num" id="statTotal">—</div><div class="stat-label">Total Items</div></div>
+    <div class="stat"><div class="stat-num">4</div><div class="stat-label">Categories</div></div>
+    <div class="stat"><div class="stat-num">∞</div><div class="stat-label">Bento Views</div></div>
+  </div>
+
+  <!-- CATEGORIES -->
+  <section id="categories" class="section">
+    <h2 class="section-title reveal">Explore <span>Collections</span></h2>
+    <p class="section-sub reveal">Each category lives on its own page with a big-small bento grid — shine hover, tilt & glow. Tap to enter.</p>
+    <div class="home-cat-grid" id="homeCats"></div>
+  </section>
+
+  <footer>
+    <div class="footer-main">
+      <div class="footer-brand">
+        <a class="brand" href="index.html"><div class="brand-logo">NX</div><div><div class="brand-name">Nexus<span>X</span> Vids</div><div class="brand-tag">Premium Showcase</div></div></a>
+        <p>Curated visual collections — furniture, streetwear, spaces & poses. Built for shine, speed & delight.</p>
+        <div class="footer-social">
+          <a href="#" title="Instagram">◎</a>
+          <a href="#" title="X">✦</a>
+          <a href="#" title="YouTube">▶</a>
+          <a href="#" title="Mail">✉</a>
         </div>
-        <div class="video-container">
-            <video id="videoPlayer" controls></video>
-            <iframe id="iframePlayer" style="display:none;width:100%;height:100%;border:0;" allow="autoplay; fullscreen" allowfullscreen></iframe>
-        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Categories</h4>
+        <a href="furniture.html">🛋 Furniture</a>
+        <a href="products.html">👕 Products</a>
+        <a href="rooms.html">🛏 Rooms</a>
+        <a href="poses.html">💃 Long Poses</a>
+      </div>
+      <div class="footer-col">
+        <h4>Experience</h4>
+        <a href="#" onclick="document.getElementById('openSettings')?.click();return false;">⚙ Settings</a>
+        <a href="#categories">Explore</a>
+        <a href="rooms.html">Spaces</a>
+        <a href="furniture.html">Elite Interiors</a>
+      </div>
+      <div class="footer-col">
+        <h4>About</h4>
+        <p>Advanced bento grids, glassmorphism, theme engine & motion —crafted for a premium, cute & shine look.</p>
+        <p style="margin-top:10px;">Press <strong>⚙</strong> to switch themes & accents.</p>
+      </div>
     </div>
+    <div class="footer-bottom">
+      <div>© 2026 <strong>NexusX Vids</strong> — Made with ♥ for creators</div>
+      <div class="footer-badge">✨ Bento • Glass • Glow</div>
+    </div>
+  </footer>
+</div>
 
-    <!-- Toast -->
-    <div class="toast" id="toast"></div>
-
-    <script>
-        let currentVideoUrl = '';
-        let currentVideoName = '';
-        let allVideos = [];
-
-        async function loadVideos() {
-            try {
-                const res = await fetch('videos.json');
-                if (!res.ok) throw new Error('No videos.json');
-                allVideos = await res.json();
-            } catch {
-                allVideos = [];
-            }
-            renderVideos(allVideos);
-        }
-
-        function renderVideos(videos) {
-            const grid = document.getElementById('videoGrid');
-            const empty = document.getElementById('emptyState');
-
-            if (!videos.length) {
-                grid.innerHTML = '';
-                empty.style.display = 'block';
-                return;
-            }
-
-            empty.style.display = 'none';
-            grid.innerHTML = videos.map(v => `
-                <div class="video-card" onclick="playVideo('${esc(v.url)}', '${esc(v.name)}', '${v.type || 'video'}')">
-                    <div class="video-thumb">
-                        ${v.type === 'iframe'
-                            ? `<iframe src="${esc(v.url)}" style="width:100%;height:100%;border:0;"></iframe>`
-                            : `<video src="${esc(v.url)}" preload="metadata" muted loop></video>`
-                        }
-                        <div class="play-overlay"></div>
-                    </div>
-                    <div class="video-info">
-                        <div class="video-name" title="${esc(v.name)}">${esc(v.name)}</div>
-                        <div class="video-meta">${v.size || ''}</div>
-                    </div>
-                </div>
-            `).join('');
-
-            // Hover preview
-            grid.querySelectorAll('.video-card').forEach(card => {
-                const vid = card.querySelector('video');
-                if (vid) {
-                    card.addEventListener('mouseenter', () => { vid.play().catch(()=>{}); });
-                    card.addEventListener('mouseleave', () => { vid.pause(); vid.currentTime = 0; });
-                }
-            });
-        }
-
-        function esc(s) {
-            const d = document.createElement('div');
-            d.textContent = s || '';
-            return d.innerHTML;
-        }
-
-        function playVideo(url, name, type) {
-            currentVideoUrl = url;
-            currentVideoName = name;
-            document.getElementById('playerTitle').textContent = name;
-            const player = document.getElementById('videoPlayer');
-            const iframe = document.getElementById('iframePlayer');
-            if (type === 'iframe') {
-                player.style.display = 'none';
-                iframe.style.display = 'block';
-                iframe.src = url + '?ff=true&controls=1&sec=0';
-            } else {
-                iframe.style.display = 'none';
-                player.style.display = 'block';
-                player.src = url;
-                player.play().catch(()=>{});
-            }
-            document.getElementById('playerModal').classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closePlayer() {
-            const player = document.getElementById('videoPlayer');
-            const iframe = document.getElementById('iframePlayer');
-            player.pause();
-            player.src = '';
-            iframe.src = '';
-            document.getElementById('playerModal').classList.remove('active');
-            document.body.style.overflow = '';
-        }
-
-        function copyDirectLink() {
-            copyToClipboard(currentVideoUrl, 'Direct link copied!');
-        }
-
-        function copyEmbedCode() {
-            const code = `<video src="${currentVideoUrl}" controls width="100%" style="max-width:800px;"></video>`;
-            copyToClipboard(code, 'Embed code copied!');
-        }
-
-        function copyIframe() {
-            const code = `<iframe src="${currentVideoUrl}" width="800" height="450" frameborder="0" allowfullscreen></iframe>`;
-            copyToClipboard(code, 'Iframe code copied!');
-        }
-
-        function copyToClipboard(text, msg) {
-            navigator.clipboard.writeText(text).then(() => showToast(msg));
-        }
-
-        function showToast(msg) {
-            const t = document.getElementById('toast');
-            t.textContent = msg;
-            t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 2000);
-        }
-
-        // Search
-        document.getElementById('search').addEventListener('input', e => {
-            const q = e.target.value.toLowerCase();
-            renderVideos(allVideos.filter(v => v.name.toLowerCase().includes(q)));
-        });
-
-        // ESC to close player
-        document.addEventListener('keydown', e => {
-            if (e.key === 'Escape' && document.getElementById('playerModal').classList.contains('active')) {
-                closePlayer();
-            }
-        });
-
-        loadVideos();
-    </script>
+<script src="assets/js/main.js"></script>
+<script>
+  function buildHome(){
+    var cats=window.NEXUS_CATS;
+    fetch('videos.json').then(function(r){ return r.json(); }).then(function(all){
+      document.getElementById('statTotal').textContent = all.length;
+      var counts={};
+      all.forEach(function(v){ var k=(v.category||'').toLowerCase(); counts[k]=(counts[k]||0)+1; });
+      var grid=document.getElementById('homeCats');
+      grid.innerHTML=cats.map(function(c){
+        var n=counts[c.key.toLowerCase()]||0;
+        return '<a class="cat-card reveal" href="'+c.url+'">'+
+          '<img class="cat-card-cover" src="'+c.cover+'" alt="'+c.label+'" loading="lazy">'+
+          '<span class="cat-card-count">'+n+' items</span>'+
+          '<span class="cat-card-go">→</span>'+
+          '<div class="cat-card-body"><div class="cat-card-label">'+c.key+'</div><div class="cat-card-name">'+c.label+'</div><div class="cat-card-desc">'+c.desc+'</div></div></a>';
+      }).join('');
+      document.querySelectorAll('.reveal').forEach(function(el,i){
+        el.style.transitionDelay=(i%4*0.08)+'s';
+        setTimeout(function(){ el.classList.add('visible'); },80);
+      });
+      if('IntersectionObserver' in window){
+        var io=new IntersectionObserver(function(ents){ ents.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('visible'); io.unobserve(e.target); } }); },{threshold:0.15});
+        document.querySelectorAll('.reveal:not(.visible)').forEach(function(el){ io.observe(el); });
+      }
+    }).catch(function(){
+      var grid=document.getElementById('homeCats');
+      grid.innerHTML=cats.map(function(c){
+        return '<a class="cat-card reveal" href="'+c.url+'">'+
+          '<img class="cat-card-cover" src="'+c.cover+'" alt="'+c.label+'" loading="lazy">'+
+          '<span class="cat-card-count">0 items</span>'+
+          '<span class="cat-card-go">→</span>'+
+          '<div class="cat-card-body"><div class="cat-card-label">'+c.key+'</div><div class="cat-card-name">'+c.label+'</div><div class="cat-card-desc">'+c.desc+'</div></div></a>';
+      }).join('');
+      document.querySelectorAll('.reveal').forEach(function(el){ el.classList.add('visible'); });
+    });
+  }
+  document.addEventListener('DOMContentLoaded', buildHome);
+</script>
 </body>
 </html>
