@@ -26,7 +26,7 @@
       <h1 class="hero-title">Elevate Your Space<br>with <span class="grad">NexusX</span> Vids</h1>
       <p class="hero-sub">Four curated worlds — <strong>elite furniture</strong>, <strong>streetwear drops</strong>, <strong>dream spaces</strong> & <strong>editorial poses</strong> — in one shining, animated showcase.</p>
       <div class="hero-cta">
-        <a class="btn btn-primary" href="#categories">Explore Catalog →</a>
+        <a class="btn btn-primary" href="#featured">🎬 Watch Featured →</a>
         <a class="btn btn-ghost" href="rooms.html">Browse Rooms</a>
       </div>
     </div>
@@ -35,92 +35,79 @@
 
   <!-- STATS -->
   <div class="stats-bar reveal">
-    <div class="stat"><div class="stat-num" id="statTotal">—</div><div class="stat-label">Total Items</div></div>
+    <div class="stat"><div class="stat-num" id="statTotal">—</div><div class="stat-label">Total Reels</div></div>
     <div class="stat"><div class="stat-num">4</div><div class="stat-label">Categories</div></div>
-    <div class="stat"><div class="stat-num">∞</div><div class="stat-label">Bento Views</div></div>
+    <div class="stat"><div class="stat-num">1 CLICK</div><div class="stat-label">Instant Play</div></div>
   </div>
+
+  <!-- FEATURED -->
+  <section id="featured" class="section">
+    <div class="featured-head">
+      <div>
+        <h2 class="section-title reveal" style="margin-bottom:6px;">Featured <span>Reels</span></h2>
+        <p class="section-sub reveal">Fresh picks, shuffled for you — hover to preview, tap to play with sound.</p>
+      </div>
+      <button class="btn btn-ghost shuffle-btn reveal" id="shuffleBtn">🎲 Shuffle</button>
+    </div>
+    <div class="featured-marquee reveal">
+      <div class="featured-track" id="featuredTrack"></div>
+    </div>
+  </section>
 
   <!-- CATEGORIES -->
   <section id="categories" class="section">
     <h2 class="section-title reveal">Explore <span>Collections</span></h2>
-    <p class="section-sub reveal">Each category lives on its own page with a big-small bento grid — shine hover, tilt & glow. Tap to enter.</p>
+    <p class="section-sub reveal">Each category lives on its own page — sort, filter & flip through reels. Tap to enter.</p>
     <div class="home-cat-grid" id="homeCats"></div>
   </section>
-
-  <footer>
-    <div class="footer-main">
-      <div class="footer-brand">
-        <a class="brand" href="index.html"><div class="brand-logo">NX</div><div><div class="brand-name">Nexus<span>X</span> Vids</div><div class="brand-tag">Premium Showcase</div></div></a>
-        <p>Curated visual collections — furniture, streetwear, spaces & poses. Built for shine, speed & delight.</p>
-        <div class="footer-social">
-          <a href="#" title="Instagram">◎</a>
-          <a href="#" title="X">✦</a>
-          <a href="#" title="YouTube">▶</a>
-          <a href="#" title="Mail">✉</a>
-        </div>
-      </div>
-      <div class="footer-col">
-        <h4>Categories</h4>
-        <a href="furniture.html">🛋 Furniture</a>
-        <a href="products.html">👕 Products</a>
-        <a href="rooms.html">🛏 Rooms</a>
-        <a href="poses.html">💃 Long Poses</a>
-      </div>
-      <div class="footer-col">
-        <h4>Experience</h4>
-        <a href="#" onclick="document.getElementById('openSettings')?.click();return false;">⚙ Settings</a>
-        <a href="#categories">Explore</a>
-        <a href="rooms.html">Spaces</a>
-        <a href="furniture.html">Elite Interiors</a>
-      </div>
-      <div class="footer-col">
-        <h4>About</h4>
-        <p>Advanced bento grids, glassmorphism, theme engine & motion —crafted for a premium, cute & shine look.</p>
-        <p style="margin-top:10px;">Press <strong>⚙</strong> to switch themes & accents.</p>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <div>© 2026 <strong>NexusX Vids</strong> — Made with ♥ for creators</div>
-      <div class="footer-badge">✨ Bento • Glass • Glow</div>
-    </div>
-  </footer>
 </div>
 
 <script src="assets/js/main.js"></script>
 <script>
   function buildHome(){
     var cats=window.NEXUS_CATS;
-    fetch('videos.json').then(function(r){ return r.json(); }).then(function(all){
-      document.getElementById('statTotal').textContent = all.length;
+    function renderCats(all){
       var counts={};
       all.forEach(function(v){ var k=(v.category||'').toLowerCase(); counts[k]=(counts[k]||0)+1; });
       var grid=document.getElementById('homeCats');
-      grid.innerHTML=cats.map(function(c){
+      if(grid) grid.innerHTML=cats.map(function(c){
         var n=counts[c.key.toLowerCase()]||0;
-        return '<a class="cat-card reveal" href="'+c.url+'">'+
+        return '<a class="cat-card" href="'+c.url+'">'+
           '<img class="cat-card-cover" src="'+c.cover+'" alt="'+c.label+'" loading="lazy">'+
           '<span class="cat-card-count">'+n+' items</span>'+
           '<span class="cat-card-go">→</span>'+
           '<div class="cat-card-body"><div class="cat-card-label">'+c.key+'</div><div class="cat-card-name">'+c.label+'</div><div class="cat-card-desc">'+c.desc+'</div></div></a>';
       }).join('');
-      document.querySelectorAll('.reveal').forEach(function(el,i){
-        el.style.transitionDelay=(i%4*0.08)+'s';
-        setTimeout(function(){ el.classList.add('visible'); },80);
-      });
-      if('IntersectionObserver' in window){
-        var io=new IntersectionObserver(function(ents){ ents.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('visible'); io.unobserve(e.target); } }); },{threshold:0.15});
-        document.querySelectorAll('.reveal:not(.visible)').forEach(function(el){ io.observe(el); });
-      }
+    }
+    function renderFeatured(all){
+      var track=document.getElementById('featuredTrack');
+      if(!track) return;
+      var pool=all.slice();
+      for(var i=pool.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=pool[i]; pool[i]=pool[j]; pool[j]=t; }
+      var picks=pool.slice(0,8);
+      var html=picks.map(function(v){ return '<div class="featured-item">'+window.NEXUS.cardHTML(v)+'</div>'; }).join('');
+      track.innerHTML=html+html;
+    }
+    fetch('videos.json').then(function(r){ return r.json(); }).then(function(all){
+      document.getElementById('statTotal').textContent=all.length;
+      renderCats(all);
+      renderFeatured(all);
+      document.querySelectorAll('#featured .reveal').forEach(function(el){ el.classList.add('visible'); });
+      document.querySelectorAll('#categories .reveal').forEach(function(el){ el.classList.add('visible'); });
+      setTimeout(window.NEXUS.setupTilt, 300);
     }).catch(function(){
       var grid=document.getElementById('homeCats');
-      grid.innerHTML=cats.map(function(c){
-        return '<a class="cat-card reveal" href="'+c.url+'">'+
+      if(grid) grid.innerHTML=cats.map(function(c){
+        return '<a class="cat-card" href="'+c.url+'">'+
           '<img class="cat-card-cover" src="'+c.cover+'" alt="'+c.label+'" loading="lazy">'+
-          '<span class="cat-card-count">0 items</span>'+
           '<span class="cat-card-go">→</span>'+
           '<div class="cat-card-body"><div class="cat-card-label">'+c.key+'</div><div class="cat-card-name">'+c.label+'</div><div class="cat-card-desc">'+c.desc+'</div></div></a>';
       }).join('');
       document.querySelectorAll('.reveal').forEach(function(el){ el.classList.add('visible'); });
+    });
+    var sb=document.getElementById('shuffleBtn');
+    if(sb) sb.addEventListener('click',function(){
+      fetch('videos.json').then(function(r){ return r.json(); }).then(function(all){ renderFeatured(all); });
     });
   }
   document.addEventListener('DOMContentLoaded', buildHome);

@@ -7,7 +7,7 @@
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 <link rel="stylesheet" href="assets/css/style.css">
 </head>
-<body data-page="Poses">
+<body data-page="Poses" data-autopage="1">
 <div class="orb orb-1"></div>
 <div class="orb orb-2"></div>
 <div class="orb orb-3"></div>
@@ -15,120 +15,25 @@
   <nav></nav>
 
   <section class="page-hero">
-    <img class="page-hero-cover" src="assets/media/collections/poses.png" alt="Poses">
+    <img class="page-hero-cover" src="assets/media/collections/poses.png" alt="Long Poses">
     <div class="page-hero-content">
       <h1 class="page-hero-title">Long Poses</h1>
-      <p class="page-hero-sub">Pose Collection — editorial flow & cinematic frames</p>
+      <p class="page-hero-sub">Editorial flow & cinematic frames</p>
     </div>
   </section>
 
-  <div class="back-bar"><a href="index.html" class="back-btn">← Back to Home</a><a href="index.html#categories" class="back-btn">Explore All</a></div>
+  <div class="back-bar"><a href="index.html" class="back-btn">← Back to Home</a><a href="index.html#featured" class="back-btn">Featured</a></div>
   <div class="breadcrumb"><a href="index.html">Home</a><span>›</span><span>Long Poses</span></div>
 
   <div class="filter-bar">
-    <div class="filter-pills">
-      <button class="active" data-filter="all">All</button>
-      <button data-filter="fav">♥ Favorites</button>
-    </div>
-    <select class="sort-select" id="sortSelect">
-      <option value="default">Default</option>
-      <option value="name">Name A–Z</option>
-      <option value="new">Newest</option>
-    </select>
+    <div class="sort-pills" id="catToolbar"></div>
   </div>
 
   <section class="section" style="padding-top:18px;">
     <div class="video-grid reel" id="videoGrid"></div>
+    <div class="pager" id="pager"></div>
   </section>
-
-    <footer>
-    <div class="footer-main">
-      <div class="footer-brand">
-        <a class="brand" href="index.html"><div class="brand-logo">NX</div><div><div class="brand-name">Nexus<span>X</span> Vids</div><div class="brand-tag">Premium Showcase</div></div></a>
-        <p>Curated visual collections � furniture, streetwear, spaces & poses. Built for shine, speed & delight.</p>
-        <div class="footer-social">
-          <a href="#" title="Instagram">?</a>
-          <a href="#" title="X">?</a>
-          <a href="#" title="YouTube">?</a>
-          <a href="#" title="Mail">?</a>
-        </div>
-      </div>
-      <div class="footer-col">
-        <h4>Categories</h4>
-        <a href="furniture.html">?? Furniture</a>
-        <a href="products.html">?? Products</a>
-        <a href="rooms.html">?? Rooms</a>
-        <a href="poses.html">?? Long Poses</a>
-      </div>
-      <div class="footer-col">
-        <h4>Experience</h4>
-        <a href="#" onclick="document.getElementById(''openSettings'')?.click();return false;">? Settings</a>
-        <a href="index.html#categories">Explore</a>
-        <a href="rooms.html">Spaces</a>
-        <a href="furniture.html">Elite Interiors</a>
-      </div>
-      <div class="footer-col">
-        <h4>About</h4>
-        <p>Advanced bento grids, glassmorphism, theme engine & motion � crafted for a premium, cute & shine look.</p>
-        <p style="margin-top:10px;">Press <strong>?</strong> to switch themes & accents.</p>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <div>� 2026 <strong>NexusX Vids</strong> � Made with ? for creators</div>
-      <div class="footer-badge">? Bento � Glass � Glow</div>
-    </div>
-  </footer>
 </div>
-
 <script src="assets/js/main.js"></script>
-<script>
-  var CAT='Poses';
-  var allForCat=[];
-  var currentFilter='all';
-  function render(){
-    var grid=document.getElementById('videoGrid');
-    var list=allForCat.slice();
-    if(currentFilter==='fav'){
-      var favs=window.NEXUS.favs();
-      list=list.filter(function(v){ return favs.indexOf(v.url)!==-1; });
-    }
-    var sort=document.getElementById('sortSelect').value;
-    if(sort==='name') list.sort(function(a,b){ return a.name.localeCompare(b.name); });
-    if(sort==='new') list.reverse();
-    if(!list.length){
-      grid.innerHTML='<div class="empty-state reveal visible"><div class="big">♡</div>'+(currentFilter==='fav'?'No favorites yet — tap ♥ on any card.':'No items — add them to videos.json')+'</div>';
-      return;
-    }
-    grid.innerHTML=list.map(function(v){ return window.NEXUS.cardHTML(v); }).join('');
-    window.NEXUS.wireCards();
-  }
-  function load(){
-    fetch('videos.json').then(function(r){ return r.json(); }).then(function(all){
-      allForCat=all.filter(function(v){ return (v.category||'').toLowerCase()===CAT.toLowerCase(); });
-      if(localStorage.getItem('nexus-bento')==='0') document.getElementById('videoGrid').classList.remove('bento');
-      window.NEXUS._setList(allForCat);
-      render();
-    }).catch(function(){ document.getElementById('videoGrid').innerHTML='<div class="empty-state">Failed to load.</div>'; });
-  }
-  document.addEventListener('DOMContentLoaded', function(){
-    load();
-    document.querySelectorAll('.filter-pills button').forEach(function(b){
-      b.addEventListener('click',function(){
-        document.querySelectorAll('.filter-pills button').forEach(function(x){ x.classList.remove('active'); });
-        b.classList.add('active'); currentFilter=b.dataset.filter; render();
-      });
-    });
-    document.getElementById('sortSelect').addEventListener('change', render);
-    window.NEXUS_onFavChange=render;
-    window.NEXUS_applySearch=function(q){
-      var grid=document.getElementById('videoGrid');
-      if(!q){ render(); return; }
-      var list=allForCat.filter(function(v){ return v.name.toLowerCase().indexOf(q.toLowerCase())!==-1; });
-      if(!list.length){ grid.innerHTML='<div class="empty-state">No match for “'+window.NEXUS.esc(q)+'”.</div>'; return; }
-      grid.innerHTML=list.map(function(v){ return window.NEXUS.cardHTML(v); }).join('');
-      window.NEXUS.wireCards();
-    };
-  });
-</script>
 </body>
 </html>
