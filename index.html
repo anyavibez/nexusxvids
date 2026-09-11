@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NexusX Vids — Premium Showcase</title>
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="assets/css/style.css">
+<link rel="preload" as="image" href="assets/media/collections/furniture.webp" fetchpriority="high">
 <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body data-page="home">
@@ -17,7 +21,7 @@
 
   <!-- HERO -->
   <section class="hero">
-    <video class="hero-bg" autoplay muted loop playsinline preload="auto">
+    <video class="hero-bg" autoplay muted loop playsinline preload="auto" poster="assets/media/collections/furniture.webp">
       <source src="assets/media/hero.mp4" type="video/mp4">
     </video>
     <div class="hero-overlay"></div>
@@ -95,7 +99,7 @@
       if(grid) grid.innerHTML=cats.map(function(c){
         var n=counts[c.key.toLowerCase()]||0;
         return '<a class="cat-card" href="'+c.url+'">'+
-          '<img class="cat-card-cover" src="'+c.cover+'" alt="'+c.label+'" loading="lazy">'+
+          '<img class="cat-card-cover" src="'+c.cover+'" alt="'+c.label+'" decoding="async">'+
           '<span class="cat-card-count">'+n+' reels</span>'+
           '<span class="cat-card-go">→</span>'+
           '<div class="cat-card-body"><div class="cat-card-label">'+c.key+'</div><div class="cat-card-name">'+c.label+'</div><div class="cat-card-desc">'+c.desc+'</div></div></a>';
@@ -132,7 +136,7 @@
         thumbs.innerHTML='';
         fam.forEach(function(x,i){
           var d=document.createElement('div'); d.className='spot-thumb'+(i===fIdx?' active':'');
-          var img=document.createElement('img'); img.src=x.thumb||''; img.alt=x.name; d.appendChild(img);
+          var img=document.createElement('img'); img.src=x.thumb||''; img.alt=x.name; img.decoding='async'; d.appendChild(img);
           d.addEventListener('click',function(){ fIdx=i; clearInterval(timer); renderSpot(); runAuto(); });
           thumbs.appendChild(d);
         });
@@ -170,7 +174,7 @@
       var grid=document.getElementById('homeCats');
       if(grid) grid.innerHTML=cats.map(function(c){
         return '<a class="cat-card" href="'+c.url+'">'+
-          '<img class="cat-card-cover" src="'+c.cover+'" alt="'+c.label+'" loading="lazy">'+
+          '<img class="cat-card-cover" src="'+c.cover+'" alt="'+c.label+'" decoding="async">'+
           '<span class="cat-card-go">→</span>'+
           '<div class="cat-card-body"><div class="cat-card-label">'+c.key+'</div><div class="cat-card-name">'+c.label+'</div><div class="cat-card-desc">'+c.desc+'</div></div></a>';
       }).join('');

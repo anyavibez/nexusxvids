@@ -6,10 +6,10 @@
   'use strict';
 
   window.NEXUS_CATS = [
-    { key:'Furniture', url:'furniture.html', label:'Furniture', desc:'Stylish seating, tables & statement pieces', cover:'assets/media/collections/furniture.png' },
-    { key:'Products',  url:'products.html',  label:'Male & Female Product', desc:'Trendy apparel & accessories', cover:'assets/media/collections/products.png' },
-    { key:'Rooms',     url:'rooms.html',     label:'Rooms', desc:'Beautifully designed living spaces', cover:'assets/media/collections/rooms.png' },
-    { key:'Poses',     url:'poses.html',     label:'Long Poses', desc:'Elegant, cinematic showcases', cover:'assets/media/collections/poses.png' }
+    { key:'Furniture', url:'furniture.html', label:'Furniture', desc:'Stylish seating, tables & statement pieces', cover:'assets/media/collections/furniture.webp' },
+    { key:'Products',  url:'products.html',  label:'Male & Female Product', desc:'Trendy apparel & accessories', cover:'assets/media/collections/products.webp' },
+    { key:'Rooms',     url:'rooms.html',     label:'Rooms', desc:'Beautifully designed living spaces', cover:'assets/media/collections/rooms.webp' },
+    { key:'Poses',     url:'poses.html',     label:'Long Poses', desc:'Elegant, cinematic showcases', cover:'assets/media/collections/poses.webp' }
   ];
 
   function esc(s){ var d=document.createElement('div'); d.textContent=s==null?'':String(s); return d.innerHTML; }
@@ -255,6 +255,65 @@
     return a;
   }
 
+  /* ---------- ADVANCED BUTTON FX: magnetic + ripple ---------- */
+  var BTN_SEL='.btn,.spot-nav,.settings-btn,.sort-pills button,.player-actions button,.nav-arrow,.back-btn';
+  var magBtn=null, magRAF=0;
+  function resetMag(){ if(magBtn) magBtn.style.transform=''; magBtn=null; }
+  document.addEventListener('mouseover',function(e){
+    var b=e.target.closest?e.target.closest(BTN_SEL):null;
+    if(b===magBtn) return;
+    resetMag();
+    magBtn=b;
+  });
+  document.addEventListener('mousemove',function(e){
+    if(!magBtn) return;
+    if(magRAF) return;
+    var b=magBtn;
+    magRAF=requestAnimationFrame(function(){
+      magRAF=0;
+      if(!b||!document.body.contains(b)){ magBtn=null; return; }
+      var r=b.getBoundingClientRect();
+      if(!r.width||!r.height) return;
+      var mx=(e.clientX-(r.left+r.width/2))*0.3;
+      var my=(e.clientY-(r.top+r.height/2))*0.3;
+      b.style.transform='translate('+mx.toFixed(1)+'px,'+my.toFixed(1)+'px)';
+    });
+  });
+  document.addEventListener('mouseout',function(e){
+    if(magBtn&&(e.target===magBtn||magBtn.contains(e.target))) resetMag();
+  });
+  document.addEventListener('click',function(e){
+    var b=e.target.closest?e.target.closest(BTN_SEL):null;
+    if(!b) return;
+    var r=b.getBoundingClientRect(), d=Math.max(r.width,r.height)*2.2;
+    var s=document.createElement('span'); s.className='ripple';
+    s.style.width=s.style.height=d+'px';
+    s.style.left=((e.clientX-r.left)-d/2)+'px';
+    s.style.top=((e.clientY-r.top)-d/2)+'px';
+    b.appendChild(s);
+    setTimeout(function(){ s.remove(); },700);
+  });
+
+  /* ---------- IMAGE FADE-IN (no white flash) ---------- */
+  document.addEventListener('load',function(e){
+    var t=e.target;
+    if(!t||t.tagName!=='IMG') return;
+    if(t.closest&&t.closest('.video-thumb,.cat-card,.spot-thumb')) t.classList.add('loaded');
+    if(t.classList&&t.classList.contains('page-hero-cover')) t.classList.add('loaded');
+  },true);
+
+  /* ---------- FIRST-RENDER CARD ENTRANCE + PRIORITY ---------- */
+  function animateGridIn(grid){
+    if(!grid||grid.classList.contains('anim-done')) return;
+    grid.classList.add('anim-done');
+    grid.querySelectorAll('.video-card').forEach(function(c,i){
+      var d=Math.min(i*30,420);
+      c.style.animation='cardIn .35s cubic-bezier(.2,.8,.2,1) backwards';
+      c.style.animationDelay=d+'ms';
+      if(i<10){ c.querySelectorAll('img,video').forEach(function(m){ m.fetchPriority='high'; }); }
+    });
+  }
+
   window.NEXUS={
     esc:esc, showToast:showToast, copyToClipboard:copyToClipboard,
     favs:getFavs, isFav:isFav, toggleFav:toggleFav, favId:favId,
@@ -268,9 +327,9 @@
       if(v.file){
         thumb='<video src="'+esc(v.file)+'" muted loop playsinline preload="none" poster="'+esc(v.thumb||'')+'" aria-hidden="true"></video>';
       } else if(v.thumb){
-        thumb='<img src="'+esc(v.thumb)+'" alt="'+esc(v.name)+'" loading="lazy" decoding="async">';
+        thumb='<img src="'+esc(v.thumb)+'" alt="'+esc(v.name)+'" decoding="async">';
       } else {
-        thumb='<iframe src="'+esc(v.url)+'" loading="lazy" allow="autoplay; fullscreen" allowfullscreen></iframe>';
+        thumb='<iframe src="'+esc(v.url)+'" allow="autoplay; fullscreen" allowfullscreen></iframe>';
       }
       return '<div class="video-card'+(isReel?' reel':'')+'" data-url="'+esc(v.url)+'" data-thumb="'+esc(v.thumb||'')+'" data-file="'+esc(v.file||'')+'" data-name="'+esc(v.name)+'" data-type="'+(v.type||'video')+'" onclick="window.NEXUS.play(this)">'+
         '<div class="video-thumb">'+thumb+'<span class="cat-chip">'+esc(label)+'</span>'+
@@ -428,6 +487,7 @@
         }
         grid.innerHTML=filtered.map(function(v){ return window.NEXUS.cardHTML(v); }).join('');
         window.NEXUS.wireCards();
+        animateGridIn(grid);
       }
 
       function load(){
