@@ -302,14 +302,11 @@
     if(t.classList&&t.classList.contains('page-hero-cover')) t.classList.add('loaded');
   },true);
 
-  /* ---------- FIRST-RENDER CARD ENTRANCE + PRIORITY ---------- */
+  /* ---------- FIRST-RENDER PRIORITY ---------- */
   function animateGridIn(grid){
     if(!grid||grid.classList.contains('anim-done')) return;
     grid.classList.add('anim-done');
     grid.querySelectorAll('.video-card').forEach(function(c,i){
-      var d=Math.min(i*30,420);
-      c.style.animation='cardIn .35s cubic-bezier(.2,.8,.2,1) backwards';
-      c.style.animationDelay=d+'ms';
       if(i<10){ c.querySelectorAll('img,video').forEach(function(m){ m.fetchPriority='high'; }); }
     });
   }
