@@ -531,6 +531,33 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
   .home-cat-grid .cat-card{grid-column:span 1 !important;grid-row:span 1 !important;min-height:240px}
 }
 
+/* ============ TOUCH / MOBILE ============ */
+.btn,.video-card,.fav-btn,.play-btn,.spot-nav,.spot-thumb,.nav-arrow,.back-btn,.sort-pills button,.player-actions button,.player-nav-btn,.player-back,.settings-btn,.shuffle-btn,.page-hero-cover{
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+}
+@media (hover:none),(pointer:coarse){
+  .play-btn{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  .video-card.reel .play-btn{width:56px;height:56px}
+  .video-card:hover{transform:none;box-shadow:0 10px 30px rgba(0,0,0,.35);border-color:var(--card-border)}
+  .video-card:hover .video-thumb img,
+  .video-card:hover .video-thumb video{transform:none}
+  .video-card:active{transform:scale(.97)}
+  .spot-thumb:hover{transform:none;opacity:.6}
+  .spot-thumb:active{opacity:1}
+  .fav-btn{width:40px;height:40px;font-size:15px}
+  .btn:hover{transform:none}
+  .spot-thumbs{scrollbar-width:none}
+  .spot-thumbs::-webkit-scrollbar{display:none}
+}
+@media (max-width:480px){
+  .player-header{padding:10px 12px}
+  .player-actions button{padding:7px 11px;font-size:11px}
+  .player-nav-btn{width:40px;height:40px}
+  .nav-arrow{width:40px;height:40px;font-size:18px}
+  .nav-arrow.left{left:6px}
+  .nav-arrow.right{right:6px}
+}
+
 /* ============ REDUCED MOTION + PERF SAFETY ============ */
 @media (prefers-reduced-motion: reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
